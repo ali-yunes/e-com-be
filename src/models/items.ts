@@ -21,8 +21,28 @@ ItemSchema.pre("save", function(next) {
 export const ItemModel = mongoose.model("Item", ItemSchema);
 
 export const getItems = () => ItemModel.find();
-export const searchPaginatedItems = (searchTerm:string, category:string, page:number, limit:number) => ItemModel.find({"name": {$regex: searchTerm, $options: "i"}, "category": category}).skip(page*limit).limit(limit);
+
 export const getItemsByCategory = (category:string) => ItemModel.find({"category": category});
 export const getItemById = (id:string) => ItemModel.findById(id);
 export const createItem = (values: Record<string, any>) => new ItemModel(values).save().then((item)=> item.toObject());
 export const deleteItemById = (id:string) => ItemModel.findByIdAndDelete(id);
+
+
+type SearchQuery = {
+    name: {
+        $regex: string,
+        $options: string
+    },
+    category?: string
+}
+export const searchPaginatedItems = (searchTerm:string, category:string, page:number, limit:number) => {
+    let query: SearchQuery = {
+        "name": {$regex: searchTerm, $options: "i"}
+    };
+
+    if(category){
+        query.category = category;
+    }
+
+    return ItemModel.find(query).skip(page*limit).limit(limit);
+}

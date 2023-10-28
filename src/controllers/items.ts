@@ -14,7 +14,7 @@ export const getAllItems = async (req: express.Request, res: express.Response) =
     }
 }
 
-export const getCategoryItems = async (req: express.Request, res: express.Response) => { 
+export const getCategoryItems = async (req: express.Request, res: express.Response) => {
     try{
         const {category} = req.params;
 
@@ -31,20 +31,29 @@ export const getCategoryItems = async (req: express.Request, res: express.Respon
 type SearchQueryParams = {
     searchTerm: string,
     category: string,
-    page: number,
-    limit: number,
+    page: string,
+    limit: string,
 }
 
 export const searchItems = async (req: Request<{},{},{},SearchQueryParams>, res: express.Response) => {
     try{
-        const {searchTerm, category, page, limit} = req.query;
+        let {searchTerm, category, page, limit} = req.query;
 
-        if(!searchTerm || !category || !page || !limit){
-            return res.sendStatus(400);
+        if(!searchTerm){
+            searchTerm = "";
+        }
+        if(!category){
+            category = "";
+        }
+        if(!page){
+            page = "0";
+        }
+        if(!limit){
+            limit = "10";
         }
 
 
-        const items = await searchPaginatedItems(searchTerm, category, page, limit);
+        const items = await searchPaginatedItems(searchTerm, category, Number(page), Number(limit));
         return res.status(200).json(items).end();
     } catch (e) {
         console.log(e);
@@ -64,7 +73,7 @@ export const addItem = async (req: express.Request, res: express.Response) => {
 
         return res.status(200).json(item);
 
-    
+
     } catch (error){
         console.log(error);
         return res.sendStatus(400);
@@ -85,7 +94,7 @@ export const deleteItem = async (req: express.Request, res: express.Response) =>
     }
  }
 
-export const updateItem = async (req: express.Request, res: express.Response) => { 
+export const updateItem = async (req: express.Request, res: express.Response) => {
     try{
         const {id} = req.params;
         const {name, description, category, price, image, quantity, sold} = req.body;

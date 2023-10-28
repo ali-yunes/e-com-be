@@ -5,8 +5,8 @@ import { searchItems, deleteItem, getAllItems,getCategoryItems, updateItem, addI
 
 export default (router: express.Router) => {
     router.get("/items", getAllItems);
-    router.get("/items/:category", getCategoryItems);
     router.get("/items/search", searchItems);
+    router.get("/items/:category", getCategoryItems);
     router.post("/items", addItem);
     router.delete("/items/:id", deleteItem);
     router.patch("/items/:id", updateItem);
