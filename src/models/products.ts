@@ -36,6 +36,34 @@ type Filter = {
     category?: string
 }
 
+type MatchStage = {
+    $match: {
+        [key: string]: any;
+    };
+};
+
+type AddFieldsStage = {
+    $addFields: {
+        [key: string]: any;
+    };
+};
+
+type ProjectStage = {
+    $project: {
+        [key: string]: 0 | 1;
+    };
+};
+
+type SkipStage = {
+    $skip: number;
+};
+
+type LimitStage = {
+    $limit: number;
+};
+
+type AggregationPipeline = (MatchStage | AddFieldsStage | ProjectStage | SkipStage | LimitStage)[];
+
 export const getProductsPaginated = (searchTerm:string, category:string, page:number, limit:number) => {
     let filter: Filter = {
         "name": { $regex: searchTerm, $options: "i" }
@@ -45,7 +73,7 @@ export const getProductsPaginated = (searchTerm:string, category:string, page:nu
         filter.category = category;
     }
 
-    let pipeline = [
+    let pipeline: AggregationPipeline = [
         { $match: filter },
         {
             $addFields: {
@@ -64,16 +92,13 @@ export const getProductsPaginated = (searchTerm:string, category:string, page:nu
                 dateModified: 0,
                 __v: 0,
             }
-        },
-        { $skip: page * limit },
-        { $limit: limit }
+        }
     ];
 
-    if (limit) {
+    if (limit && page) {
+        pipeline.push({ $skip: page * limit });
         pipeline.push({ $limit: limit });
-        if(page){
-            pipeline.push({ $skip: page * limit });
-        }
     }
+
     return Product.aggregate(pipeline).exec();
 }
