@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import {ReviewModel} from "./review";
 
 export const ProductSchema = new mongoose.Schema({
     sellerId: {type:String, required: true},
@@ -6,9 +7,11 @@ export const ProductSchema = new mongoose.Schema({
     description: {type:String, required: true},
     category: {type:String, required: true},
     price: {type:Number, required: true},
+    discount: {type: Number, default: 0},
+    reviews: {type: [ReviewModel.schema], default: []},
     image: {type:String, required: true},
     quantity: {type:Number, required: true},
-    sold: {type:Number, required: true},
+    sold: {type:Number, default: 0},
     dateCreated: {type: Date, default: Date.now},
     dateModified: {type: Date, default: Date.now},
 });
