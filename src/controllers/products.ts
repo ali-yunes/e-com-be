@@ -118,7 +118,7 @@ export const updateProduct = async (req: express.Request<{id:string},{},UpdatePr
             return res.sendStatus(400);
         }
 
-        const product = updateProductById(id, {name, description, category, price, image, quantity, sold});
+        const product = await updateProductById(id, {name, description, category, price, image, quantity, sold});
 
         return res.status(200).json(product);
     }

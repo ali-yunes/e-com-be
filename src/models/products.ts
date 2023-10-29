@@ -60,7 +60,7 @@ interface UpdateProductReq{
     sold?: number;
 }
 
-export const updateProductById = (id:string, update: UpdateProductReq) => Product.findByIdAndUpdate(id,update);
+export const updateProductById = (id:string, update: UpdateProductReq) => Product.findByIdAndUpdate(id,update, {returnOriginal:false});
 
 type Filter = {
     name: {
