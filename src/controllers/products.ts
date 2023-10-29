@@ -1,5 +1,11 @@
 import express from "express";
-import {getProductsPaginated, deleteProductById, getProductById, createProduct} from "../models/products";
+import {
+    getProductsPaginated,
+    deleteProductById,
+    getProductById,
+    createProduct,
+    updateProductById
+} from "../models/products";
 import { Request } from "express";
 
 type SearchQueryParams = {
@@ -35,7 +41,7 @@ export const getProducts = async (req: Request<{},{},{},SearchQueryParams>, res:
 }
 
 
-interface ProductI{
+interface AddProductReq{
     sellerId: string;
     name: string;
     description: string;
@@ -46,7 +52,7 @@ interface ProductI{
     sold: number;
 }
 
-export const addProduct = async (req: express.Request<{},{},ProductI>, res: express.Response) => {
+export const addProduct = async (req: express.Request<{},{},AddProductReq>, res: express.Response) => {
     try{
         const {sellerId, name, description, category, price, image, quantity, sold} = req.body;
 
@@ -93,7 +99,17 @@ export const deleteProduct = async (req: express.Request, res: express.Response)
     }
  }
 
-export const updateProduct = async (req: express.Request<{id:string},{},ProductI>, res: express.Response) => {
+interface UpdateProductReq{
+    name?: string;
+    description?: string;
+    category?: string;
+    price?: number;
+    image?: string;
+    quantity?: number;
+    sold?: number;
+}
+
+export const updateProduct = async (req: express.Request<{id:string},{},UpdateProductReq>, res: express.Response) => {
     try{
         const {id} = req.params;
         const {name, description, category, price, image, quantity, sold} = req.body;
@@ -102,33 +118,9 @@ export const updateProduct = async (req: express.Request<{id:string},{},ProductI
             return res.sendStatus(400);
         }
 
-        const product = await getProductById(id);
+        const product = updateProductById(id, {name, description, category, price, image, quantity, sold});
 
-        if(!name){
-            product.name = name;
-        }
-        if(!description){
-            product.description = description;
-        }
-        if(!category){
-            product.category = category;
-         }
-        if(!price){
-            product.price = price;
-        }
-        if(!image){
-            product.image = image;
-        }
-        if(!quantity){
-            product.quantity = quantity;
-         }
-        if(!sold){
-            product.sold = sold;
-        }
-
-        await product.save();
         return res.status(200).json(product);
-
     }
     catch(error) {
         console.log(error);

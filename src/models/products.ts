@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import {Review} from "./review";
+const { ObjectId } = mongoose.Types;
 
 export const ProductSchema = new mongoose.Schema({
     sellerId: {type:String, required: true},
@@ -23,10 +24,43 @@ ProductSchema.pre("save", function(next) {
 
 export const Product = mongoose.model("Product", ProductSchema);
 
-export const getProductById = (id:string) => Product.findById(id).select({sellerId:0, dateCreated:0, dateModified:0, __v:0});
+
+export const getProductById = (id:string) => {
+    let pipeline: AggregationPipeline = [
+        { $match: {_id: new ObjectId(id)} },
+        {
+            $addFields: {
+                reviewCount: { $size: "$reviews" },
+                ratingAverage: { $avg: "$reviews.rating" }
+            }
+        },
+        {
+            $project: {
+                sellerId: 0,
+                dateCreated: 0,
+                dateModified: 0,
+                __v: 0,
+            }
+        }
+    ];
+
+    return Product.aggregate(pipeline).exec();
+};
+
 export const createProduct = (values: Record<string, any>) => new Product(values).save().then((product)=> product.toObject());
 export const deleteProductById = (id:string) => Product.findByIdAndDelete(id);
 
+interface UpdateProductReq{
+    name?: string;
+    description?: string;
+    category?: string;
+    price?: number;
+    image?: string;
+    quantity?: number;
+    sold?: number;
+}
+
+export const updateProductById = (id:string, update: UpdateProductReq) => Product.findByIdAndUpdate(id,update);
 
 type Filter = {
     name: {
