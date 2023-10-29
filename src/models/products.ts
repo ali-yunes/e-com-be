@@ -31,11 +31,13 @@ export const getProductById = (id:string) => {
         {
             $addFields: {
                 reviewCount: { $size: "$reviews" },
-                ratingAverage: { $avg: "$reviews.rating" }
+                ratingAverage: { $avg: "$reviews.rating" },
+                id: "$_id"
             }
         },
         {
             $project: {
+                _id:0,
                 sellerId: 0,
                 dateCreated: 0,
                 dateModified: 0,
@@ -116,11 +118,13 @@ export const getProductsPaginated = async (searchTerm: string, category: string,
         {
             $addFields: {
                 reviewCount: {$size: "$reviews"},
-                ratingAverage: {$avg: "$reviews.rating"}
+                ratingAverage: {$avg: "$reviews.rating"},
+                id:"$_id",
             }
         },
         {
             $project: {
+                _id:0,
                 sellerId: 0,
                 description: 0,
                 reviews: 0,
