@@ -98,6 +98,8 @@ type LimitStage = {
 
 type AggregationPipeline = (MatchStage | AddFieldsStage | ProjectStage | SkipStage | LimitStage)[];
 
+//Returns the products based on the filter and the page and limit.
+//Also returns the total number of products for a given filter, so client can handle pagination.
 export const getProductsPaginated = async (searchTerm: string, category: string, page: number, limit: number) => {
     let filter: Filter = {
         "name": {$regex: searchTerm, $options: "i"}
@@ -135,6 +137,7 @@ export const getProductsPaginated = async (searchTerm: string, category: string,
         pipeline.push({$skip: page * limit});
         pipeline.push({$limit: limit});
     }
+
     const products = await Product.aggregate(pipeline).exec();
 
     return {products, total};
