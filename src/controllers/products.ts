@@ -4,7 +4,8 @@ import {
     deleteProductById,
     getProductById,
     createProduct,
-    updateProductById
+    updateProductById,
+    addReviewToProduct
 } from "../models/products";
 import { Request } from "express";
 
@@ -119,6 +120,33 @@ export const updateProduct = async (req: express.Request<{id:string},{},UpdatePr
         }
 
         const product = await updateProductById(id, {name, description, category, price, image, quantity, sold});
+
+        return res.status(200).json(product);
+    }
+    catch(error) {
+        console.log(error);
+        return res.sendStatus(400);
+    }
+}
+
+interface AddReviewReq{
+    userId: string;
+    title: string;
+    comment: string;
+    rating: number;
+}
+
+
+export const addReview = async (req: express.Request<{id:string},{},AddReviewReq>, res: express.Response) => {
+    try{
+        const {id} = req.params;
+        const {userId, title, comment, rating} = req.body;
+
+        if(!userId || !title || !comment || !rating){
+            return res.sendStatus(400);
+        }
+
+        const product = await addReviewToProduct(id,{userId, title, comment, rating});
 
         return res.status(200).json(product);
     }

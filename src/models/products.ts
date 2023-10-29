@@ -98,21 +98,23 @@ type LimitStage = {
 
 type AggregationPipeline = (MatchStage | AddFieldsStage | ProjectStage | SkipStage | LimitStage)[];
 
-export const getProductsPaginated = (searchTerm:string, category:string, page:number, limit:number) => {
+export const getProductsPaginated = async (searchTerm: string, category: string, page: number, limit: number) => {
     let filter: Filter = {
-        "name": { $regex: searchTerm, $options: "i" }
+        "name": {$regex: searchTerm, $options: "i"}
     };
 
     if (category) {
         filter.category = category;
     }
 
+    const total = await Product.count(filter);
+
     let pipeline: AggregationPipeline = [
-        { $match: filter },
+        {$match: filter},
         {
             $addFields: {
-                reviewCount: { $size: "$reviews" },
-                ratingAverage: { $avg: "$reviews.rating" }
+                reviewCount: {$size: "$reviews"},
+                ratingAverage: {$avg: "$reviews.rating"}
             }
         },
         {
@@ -130,9 +132,22 @@ export const getProductsPaginated = (searchTerm:string, category:string, page:nu
     ];
 
     if (limit && page) {
-        pipeline.push({ $skip: page * limit });
-        pipeline.push({ $limit: limit });
+        pipeline.push({$skip: page * limit});
+        pipeline.push({$limit: limit});
     }
+    const products = await Product.aggregate(pipeline).exec();
 
-    return Product.aggregate(pipeline).exec();
+    return {products, total};
+}
+
+interface ReviewI{
+    userId: string;
+    title: string;
+    comment: string;
+    rating: number;
+}
+
+export const addReviewToProduct = (id: string, review: ReviewI) => {
+    const newReview = new Review(review);
+    return Product.findByIdAndUpdate(id, {$push:{reviews: newReview}}, {returnOriginal:false}).select({dateCreated:0, dateModified:0, __v:0});
 }
