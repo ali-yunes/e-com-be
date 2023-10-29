@@ -1,9 +1,9 @@
 import express from 'express';
-import items from "./items";
+import products from "./products";
 
 const router = express.Router();
 
 export default (): express.Router => {
-    items(router);
+    products(router);
     return router;
 }

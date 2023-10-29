@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-export const ItemSchema = new mongoose.Schema({
+export const ProductSchema = new mongoose.Schema({
     sellerId: {type:String, required: true},
     name: {type:String, required: true},
     description: {type:String, required: true},
@@ -13,19 +13,19 @@ export const ItemSchema = new mongoose.Schema({
     dateModified: {type: Date, default: Date.now},
 });
 
-ItemSchema.pre("save", function(next) {
+ProductSchema.pre("save", function(next) {
     this.dateModified = new Date();
     next();
 });
 
-export const ItemModel = mongoose.model("Item", ItemSchema);
+export const ProductModel = mongoose.model("Product", ProductSchema);
 
-export const getItems = () => ItemModel.find();
+export const getProducts = () => ProductModel.find();
 
-export const getItemsByCategory = (category:string) => ItemModel.find({"category": category});
-export const getItemById = (id:string) => ItemModel.findById(id);
-export const createItem = (values: Record<string, any>) => new ItemModel(values).save().then((item)=> item.toObject());
-export const deleteItemById = (id:string) => ItemModel.findByIdAndDelete(id);
+export const getProductsByCategory = (category:string) => ProductModel.find({"category": category});
+export const getProductById = (id:string) => ProductModel.findById(id);
+export const createProduct = (values: Record<string, any>) => new ProductModel(values).save().then((product)=> product.toObject());
+export const deleteProductById = (id:string) => ProductModel.findByIdAndDelete(id);
 
 
 type SearchQuery = {
@@ -35,7 +35,7 @@ type SearchQuery = {
     },
     category?: string
 }
-export const searchPaginatedItems = (searchTerm:string, category:string, page:number, limit:number) => {
+export const searchPaginatedProducts = (searchTerm:string, category:string, page:number, limit:number) => {
     let query: SearchQuery = {
         "name": {$regex: searchTerm, $options: "i"}
     };
@@ -44,5 +44,5 @@ export const searchPaginatedItems = (searchTerm:string, category:string, page:nu
         query.category = category;
     }
 
-    return ItemModel.find(query).skip(page*limit).limit(limit);
+    return ProductModel.find(query).skip(page*limit).limit(limit);
 }

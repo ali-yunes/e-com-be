@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 export const ReviewSchema = new mongoose.Schema({
-    itemId: {type:String, required: true},
+    productId: {type:String, required: true},
     userId: {type:String, required: true},
     title: {type:String, required: true},
     comment: {type:String, required: true},

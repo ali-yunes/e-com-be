@@ -1,26 +1,26 @@
 import express from "express";
-import {getItems, searchPaginatedItems, deleteItemById, getItemById, getItemsByCategory, createItem} from "../models/items";
+import {getProducts, searchPaginatedProducts, deleteProductById, getProductById, getProductsByCategory, createProduct} from "../models/products";
 import { Request } from "express";
 
-export const getAllItems = async (req: express.Request, res: express.Response) => {
+export const getAllProducts = async (req: express.Request, res: express.Response) => {
     try{
-        console.log("getItems called")
-        const items = await getItems();
-        console.log("items",items);
-        return res.status(200).json(items).end();
+        console.log("getProducts called")
+        const products = await getProducts();
+        console.log("products",products);
+        return res.status(200).json(products).end();
     } catch (e) {
         console.log(e);
         return res.sendStatus(400);
     }
 }
 
-export const getCategoryItems = async (req: express.Request, res: express.Response) => {
+export const getCategoryProducts = async (req: express.Request, res: express.Response) => {
     try{
         const {category} = req.params;
 
-        const items = await getItemsByCategory(category);
+        const products = await getProductsByCategory(category);
 
-        return res.status(200).json(items);
+        return res.status(200).json(products);
 
     } catch (error) {
         console.log(error);
@@ -35,7 +35,7 @@ type SearchQueryParams = {
     limit: string,
 }
 
-export const searchItems = async (req: Request<{},{},{},SearchQueryParams>, res: express.Response) => {
+export const searchProducts = async (req: Request<{},{},{},SearchQueryParams>, res: express.Response) => {
     try{
         let {searchTerm, category, page, limit} = req.query;
 
@@ -53,15 +53,15 @@ export const searchItems = async (req: Request<{},{},{},SearchQueryParams>, res:
         }
 
 
-        const items = await searchPaginatedItems(searchTerm, category, Number(page), Number(limit));
-        return res.status(200).json(items).end();
+        const products = await searchPaginatedProducts(searchTerm, category, Number(page), Number(limit));
+        return res.status(200).json(products).end();
     } catch (e) {
         console.log(e);
         return res.sendStatus(400);
     }
 }
 
-export const addItem = async (req: express.Request, res: express.Response) => {
+export const addProduct = async (req: express.Request, res: express.Response) => {
     try{
         const {sellerId, name, description, category, price, image, quantity, sold} = req.body;
 
@@ -69,9 +69,9 @@ export const addItem = async (req: express.Request, res: express.Response) => {
             return res.sendStatus(400);
         }
 
-        const item = await createItem({sellerId, name, description, category, price, image, quantity, sold});
+        const product = await createProduct({sellerId, name, description, category, price, image, quantity, sold});
 
-        return res.status(200).json(item);
+        return res.status(200).json(product);
 
 
     } catch (error){
@@ -80,13 +80,13 @@ export const addItem = async (req: express.Request, res: express.Response) => {
     }
  }
 
-export const deleteItem = async (req: express.Request, res: express.Response) => {
+export const deleteProduct = async (req: express.Request, res: express.Response) => {
     try{
         const {id} = req.params;
 
-        const deletedItem = await deleteItemById(id);
+        const deletedProduct = await deleteProductById(id);
 
-        return res.status(200).json(deletedItem);
+        return res.status(200).json(deletedProduct);
 
     } catch (error) {
         console.log(error);
@@ -94,7 +94,7 @@ export const deleteItem = async (req: express.Request, res: express.Response) =>
     }
  }
 
-export const updateItem = async (req: express.Request, res: express.Response) => {
+export const updateProduct = async (req: express.Request, res: express.Response) => {
     try{
         const {id} = req.params;
         const {name, description, category, price, image, quantity, sold} = req.body;
@@ -103,32 +103,32 @@ export const updateItem = async (req: express.Request, res: express.Response) =>
             return res.sendStatus(400);
         }
 
-        const item = await getItemById(id);
+        const product = await getProductById(id);
 
         if(!name){
-            item.name = name;
+            product.name = name;
         }
         if(!description){
-            item.description = description;
+            product.description = description;
         }
         if(!category){
-            item.category = category;
+            product.category = category;
          }
         if(!price){
-            item.price = price;
+            product.price = price;
         }
         if(!image){
-            item.image = image;
+            product.image = image;
         }
         if(!quantity){
-            item.quantity = quantity;
+            product.quantity = quantity;
          }
         if(!sold){
-            item.sold = sold;
+            product.sold = sold;
         }
 
-        await item.save();
-        return res.status(200).json(item);
+        await product.save();
+        return res.status(200).json(product);
 
     }
     catch(error) {
