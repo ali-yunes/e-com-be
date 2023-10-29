@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import {ReviewModel} from "./review";
+import {Review} from "./review";
 
 export const ProductSchema = new mongoose.Schema({
     sellerId: {type:String, required: true},
@@ -8,7 +8,7 @@ export const ProductSchema = new mongoose.Schema({
     category: {type:String, required: true},
     price: {type:Number, required: true},
     discount: {type: Number, default: 0},
-    reviews: {type: [ReviewModel.schema], default: []},
+    reviews: {type: [Review.schema], default: []},
     image: {type:String, required: true},
     quantity: {type:Number, required: true},
     sold: {type:Number, default: 0},
@@ -21,31 +21,46 @@ ProductSchema.pre("save", function(next) {
     next();
 });
 
-export const ProductModel = mongoose.model("Product", ProductSchema);
+export const Product = mongoose.model("Product", ProductSchema);
 
-export const getProducts = () => ProductModel.find();
-
-export const getProductsByCategory = (category:string) => ProductModel.find({"category": category});
-export const getProductById = (id:string) => ProductModel.findById(id);
-export const createProduct = (values: Record<string, any>) => new ProductModel(values).save().then((product)=> product.toObject());
-export const deleteProductById = (id:string) => ProductModel.findByIdAndDelete(id);
+export const getProductById = (id:string) => Product.findById(id).select({sellerId:0, dateCreated:0, dateModified:0, __v:0});
+export const createProduct = (values: Record<string, any>) => new Product(values).save().then((product)=> product.toObject());
+export const deleteProductById = (id:string) => Product.findByIdAndDelete(id);
 
 
-type SearchQuery = {
+type Filter = {
     name: {
         $regex: string,
         $options: string
     },
     category?: string
 }
-export const searchPaginatedProducts = (searchTerm:string, category:string, page:number, limit:number) => {
-    let query: SearchQuery = {
+
+export const getProductsPaginated = (searchTerm:string, category:string, page:number, limit:number) => {
+    let filter: Filter = {
         "name": {$regex: searchTerm, $options: "i"}
     };
 
     if(category){
-        query.category = category;
+        filter.category = category;
     }
 
-    return ProductModel.find(query).skip(page*limit).limit(limit);
+    let query = Product.find(filter).select({
+        sellerId: 0,
+        description: 0,
+        reviews: 0,
+        quantity: 0,
+        sold: 0,
+        dateCreated: 0,
+        dateModified: 0,
+        __v: 0
+    });
+
+    if(limit){
+        query = query.limit(limit)
+        if(page===0 || page){
+            query = query.skip(page*limit)
+        }
+    }
+    return query.exec();
 }

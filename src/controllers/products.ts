@@ -1,32 +1,6 @@
 import express from "express";
-import {getProducts, searchPaginatedProducts, deleteProductById, getProductById, getProductsByCategory, createProduct} from "../models/products";
+import {getProductsPaginated, deleteProductById, getProductById, createProduct} from "../models/products";
 import { Request } from "express";
-
-export const getAllProducts = async (req: express.Request, res: express.Response) => {
-    try{
-        console.log("getProducts called")
-        const products = await getProducts();
-        console.log("products",products);
-        return res.status(200).json(products).end();
-    } catch (e) {
-        console.log(e);
-        return res.sendStatus(400);
-    }
-}
-
-export const getCategoryProducts = async (req: express.Request, res: express.Response) => {
-    try{
-        const {category} = req.params;
-
-        const products = await getProductsByCategory(category);
-
-        return res.status(200).json(products);
-
-    } catch (error) {
-        console.log(error);
-        return res.sendStatus(400);
-    }
-}
 
 type SearchQueryParams = {
     searchTerm: string,
@@ -35,7 +9,7 @@ type SearchQueryParams = {
     limit: string,
 }
 
-export const searchProducts = async (req: Request<{},{},{},SearchQueryParams>, res: express.Response) => {
+export const getProducts = async (req: Request<{},{},{},SearchQueryParams>, res: express.Response) => {
     try{
         let {searchTerm, category, page, limit} = req.query;
 
@@ -52,8 +26,7 @@ export const searchProducts = async (req: Request<{},{},{},SearchQueryParams>, r
             limit = "10";
         }
 
-
-        const products = await searchPaginatedProducts(searchTerm, category, Number(page), Number(limit));
+        const products = await getProductsPaginated(searchTerm, category, Number(page), Number(limit));
         return res.status(200).json(products).end();
     } catch (e) {
         console.log(e);
@@ -61,7 +34,19 @@ export const searchProducts = async (req: Request<{},{},{},SearchQueryParams>, r
     }
 }
 
-export const addProduct = async (req: express.Request, res: express.Response) => {
+
+interface ProductI{
+    sellerId: string;
+    name: string;
+    description: string;
+    category: string;
+    price: number;
+    image: string;
+    quantity: number;
+    sold: number;
+}
+
+export const addProduct = async (req: express.Request<{},{},ProductI>, res: express.Response) => {
     try{
         const {sellerId, name, description, category, price, image, quantity, sold} = req.body;
 
@@ -80,6 +65,20 @@ export const addProduct = async (req: express.Request, res: express.Response) =>
     }
  }
 
+ export const getProduct = async (req: express.Request, res: express.Response) => {
+     try{
+         const {id} = req.params;
+
+         const product = await getProductById(id);
+
+         return res.status(200).json(product);
+
+     } catch (error) {
+         console.log(error);
+         return res.sendStatus(400);
+     }
+ }
+
 export const deleteProduct = async (req: express.Request, res: express.Response) => {
     try{
         const {id} = req.params;
@@ -94,7 +93,7 @@ export const deleteProduct = async (req: express.Request, res: express.Response)
     }
  }
 
-export const updateProduct = async (req: express.Request, res: express.Response) => {
+export const updateProduct = async (req: express.Request<{id:string},{},ProductI>, res: express.Response) => {
     try{
         const {id} = req.params;
         const {name, description, category, price, image, quantity, sold} = req.body;

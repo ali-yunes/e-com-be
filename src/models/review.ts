@@ -14,4 +14,4 @@ ReviewSchema.pre("save", function(next) {
     next();
 });
 
-export const ReviewModel = mongoose.model("Review", ReviewSchema);
+export const Review = mongoose.model("Review", ReviewSchema);
