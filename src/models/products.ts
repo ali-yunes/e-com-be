@@ -38,29 +38,42 @@ type Filter = {
 
 export const getProductsPaginated = (searchTerm:string, category:string, page:number, limit:number) => {
     let filter: Filter = {
-        "name": {$regex: searchTerm, $options: "i"}
+        "name": { $regex: searchTerm, $options: "i" }
     };
 
-    if(category){
+    if (category) {
         filter.category = category;
     }
 
-    let query = Product.find(filter).select({
-        sellerId: 0,
-        description: 0,
-        reviews: 0,
-        quantity: 0,
-        sold: 0,
-        dateCreated: 0,
-        dateModified: 0,
-        __v: 0
-    });
+    let pipeline = [
+        { $match: filter },
+        {
+            $addFields: {
+                reviewCount: { $size: "$reviews" },
+                ratingAverage: { $avg: "$reviews.rating" }
+            }
+        },
+        {
+            $project: {
+                sellerId: 0,
+                description: 0,
+                reviews: 0,
+                quantity: 0,
+                sold: 0,
+                dateCreated: 0,
+                dateModified: 0,
+                __v: 0,
+            }
+        },
+        { $skip: page * limit },
+        { $limit: limit }
+    ];
 
-    if(limit){
-        query = query.limit(limit)
-        if(page===0 || page){
-            query = query.skip(page*limit)
+    if (limit) {
+        pipeline.push({ $limit: limit });
+        if(page){
+            pipeline.push({ $skip: page * limit });
         }
     }
-    return query.exec();
+    return Product.aggregate(pipeline).exec();
 }
