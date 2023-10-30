@@ -78,7 +78,7 @@ export const addProduct = async (req: express.Request<{},{},AddProductReq>, res:
 
          const product = await getProductById(id);
 
-         return res.status(200).json(product);
+         return res.status(200).json(product[0]);
 
      } catch (error) {
          console.log(error);
