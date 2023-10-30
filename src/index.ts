@@ -1,7 +1,8 @@
 import express from "express";
 import http from "http";
 import bodyParser from "body-parser";
-import compression from "compression";  
+import cookieParser from "cookie-parser";
+import compression from "compression";
 import cors from "cors";
 import mongoose from "mongoose";
 import router from "./router";
@@ -12,7 +13,7 @@ app.use(cors({
     credentials:true,
 }));
 
-
+app.use(cookieParser());
 app.use(compression());
 app.use(bodyParser.json());
 
