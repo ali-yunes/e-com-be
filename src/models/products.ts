@@ -137,8 +137,10 @@ export const getProductsPaginated = async (searchTerm: string, category: string,
         }
     ];
 
-    if (limit && page) {
-        pipeline.push({$skip: page * limit});
+    if (limit) {
+        if(page) {
+            pipeline.push({$skip: page * limit});
+        }
         pipeline.push({$limit: limit});
     }
 
