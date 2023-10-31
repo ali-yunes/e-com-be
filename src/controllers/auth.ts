@@ -27,8 +27,8 @@ export const register = async(req: express.Request, res: express.Response) => {
         return res.status(200).json({message:"Registration Successful"});
 
     } catch (err) {
-        console.log(err);
-        return res.sendStatus(400);
+        console.error(err);
+        return res.status(500).json({message:"Server error"});
     }
 }
 
@@ -60,7 +60,7 @@ export const login = async (req: express.Request, res: express.Response) => {
         return res.status(200).json({message:"Login Successful"});
 
     } catch (err) {
-        console.log(err);
-        return res.sendStatus(400);
+        console.error(err);
+        return res.status(500).json({message:"Server error"});
     }
 }

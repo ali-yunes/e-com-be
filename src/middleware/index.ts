@@ -7,8 +7,6 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
     try{
         const sessionToken = req.cookies["ACCESS_TOKEN"];
 
-        console.log(sessionToken);
-
         if(!sessionToken){
             return res.sendStatus(403);
         }
@@ -18,7 +16,7 @@ export const isAuthenticated = async (req: express.Request, res: express.Respons
         if (!existingUser){
             return res.sendStatus(403);
         }
-        
+
         merge(req, {identity: existingUser});
         return next();
 
