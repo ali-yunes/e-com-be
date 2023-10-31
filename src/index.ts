@@ -6,6 +6,7 @@ import compression from "compression";
 import cors from "cors";
 import mongoose from "mongoose";
 import router from "./router";
+import path from "path";
 
 const app = express();
 
@@ -17,13 +18,14 @@ app.use(cookieParser());
 app.use(compression());
 app.use(bodyParser.json());
 
-const server = http.createServer(app);
+app.use(express.static(path.join(__dirname,'e-com-fe')));
 
-server.listen(8080, () => {
-    console.log("Server is running on http://localhost:8080");
-})
+app.use('/api', router());
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '/e-com-fe/index.html'));
+});
 
-const MONGO_URL = "mongodb://localhost:27017/test";
+const MONGO_URL = process.env["MONGO_URL"] || "mongodb://localhost:27017";
 
 mongoose.Promise = Promise;
 mongoose.connect(MONGO_URL);
@@ -32,4 +34,9 @@ mongoose.connection.on("error", (err: Error) => {
     console.log("MongoDB connection error. Please make sure MongoDB is running.");
 });
 
-app.use('/', router());
+
+const server = http.createServer(app);
+
+server.listen(process.env["PORT"] || 8080, () => {
+    console.log("Server is running on port",process.env["PORT"]);
+})
