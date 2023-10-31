@@ -18,3 +18,10 @@ Project built using
 - ExpressJS
 - TypeScript
 - MongoDB
+
+To run the project you'll need to provide a mongo  url or have it running locally.
+You will also need to build the angular project and add it to the src. https://github.com/ali-yunes/e-com-fe
+
+To start the project: 
+```yarn start```
+
